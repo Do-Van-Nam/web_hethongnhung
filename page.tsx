@@ -9,10 +9,9 @@ import { WaterQualityTable } from "./water-quality-table"
 import { SystemStatus } from "./system-status"
 import { AlertsPanel } from "./alerts-panel"
 import { SettingsPanel } from "./settings-panel"
-// import { WaterQualityMap } from "./water-quality-map"
+import { WaterQualityMap } from "./water-quality-map"
 import dynamic from "next/dynamic";
 
-const WaterQualityMap = dynamic(() => import("./water-quality-map"), { ssr: false });
 
 export default function WaterQualityDashboard() {
   return (
@@ -119,6 +118,7 @@ export default function WaterQualityDashboard() {
           <div className="flex items-center">
             <TabsList>
               <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="map">Map</TabsTrigger>
               <TabsTrigger value="history">History</TabsTrigger>
               <TabsTrigger value="alerts">Alerts</TabsTrigger>
               <TabsTrigger value="settings">Settings</TabsTrigger>
@@ -168,6 +168,11 @@ export default function WaterQualityDashboard() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent value="map" className="space-y-4">
+            <WaterQualityMap />
+          </TabsContent>
+
           <TabsContent value="history" className="space-y-4">
             <Card>
               <CardHeader>
