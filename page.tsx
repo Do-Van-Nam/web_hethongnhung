@@ -102,19 +102,7 @@ export default function WaterQualityDashboard() {
           </Card>
         </div>
         <Tabs defaultValue="overview">
-        <TabsContent value="overview" className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-              <Card className="lg:col-span-5">
-                <CardHeader>
-                  <CardTitle>Water Quality Map</CardTitle>
-                  <CardDescription>Real-time monitoring of water quality across locations</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {/* <WaterQualityMap /> */}
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
+        
           <div className="flex items-center">
             <TabsList>
               <TabsTrigger value="overview">Overview</TabsTrigger>
