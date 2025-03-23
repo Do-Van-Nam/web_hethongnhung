@@ -10,10 +10,34 @@ import { SystemStatus } from "./system-status"
 import { AlertsPanel } from "./alerts-panel"
 import { SettingsPanel } from "./settings-panel"
 import { WaterQualityMap } from "./water-quality-map"
-import dynamic from "next/dynamic";
+import SensorDataComponent from "@/components/sensor-data-component";
 
+import dynamic from "next/dynamic";
+import { useEffect, useState } from "react";
+import { io } from "socket.io-client";
+
+const SOCKET_SERVER_URL = "http://localhost:8000"; // Thay bằng URL thực tế nếu deploy
 
 export default function WaterQualityDashboard() {
+  const [sensorData, setSensorData] = useState(null);
+  
+    useEffect(() => {
+      const socket = io(SOCKET_SERVER_URL);
+  
+      // Lắng nghe sự kiện 'sensorData' từ backend
+      socket.on("sensorData", (data) => {
+        console.log("Dữ liệu nhận từ WebSocket:", data);
+        setSensorData(data);
+      });
+  
+      // return () => {
+      //   socket.disconnect(); // Ngắt kết nối khi component unmount
+      // };
+    }, []);
+
+
+
+
   return (
     <div className="flex min-h-screen flex-col bg-muted/40">
        {/* <WaterQualityMap /> */}
@@ -41,6 +65,7 @@ export default function WaterQualityDashboard() {
       Normal
     </Badge>
   </div> */}
+   {/* <SensorDataComponent /> */}
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {/* Trạng thái chất lượng nước */}
@@ -56,7 +81,7 @@ export default function WaterQualityDashboard() {
               <p className="text-xs text-green-600">All parameters are within the optimal range</p>
             </CardContent>
           </Card>
-          <Card>
+          {/* <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">pH Level</CardTitle>
               <Droplets className="h-4 w-4 text-cyan-600" />
@@ -77,26 +102,26 @@ export default function WaterQualityDashboard() {
               <p className="text-xs text-muted-foreground">Optimal range: 20-26°C</p>
               <Progress value={65} className="mt-2" />
             </CardContent>
-          </Card>
+          </Card> */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Turbidity</CardTitle>
               <Eye className="h-4 w-4 text-amber-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">1.2 NTU</div>
+              <div className="text-2xl font-bold">{sensorData?.NTU ?? "..."} NTU </div>
               <p className="text-xs text-muted-foreground">Optimal range: 0-5 NTU</p>
               <Progress value={24} className="mt-2" />
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Dissolved Oxygen</CardTitle>
+              <CardTitle className="text-sm font-medium">Dissolved Solids</CardTitle>
               <Activity className="h-4 w-4 text-cyan-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">8.5 mg/L</div>
-              <p className="text-xs text-muted-foreground">Optimal range: 6.5-8 mg/L</p>
+              <div className="text-2xl font-bold">{sensorData?.TDS ?? "..."} ppm</div>
+              <p className="text-xs text-muted-foreground">Optimal range: 6.5-8 ppm</p>
               <Progress value={85} className="mt-2" />
             </CardContent>
           </Card>
