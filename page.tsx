@@ -16,7 +16,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
-const SOCKET_SERVER_URL = "http://localhost:8000"; // Thay bằng URL thực tế nếu deploy
+const SOCKET_SERVER_URL = "https://api-iot-mu.vercel.app"; // Thay bằng URL thực tế nếu deploy
 
 export default function WaterQualityDashboard() {
   const [sensorData, setSensorData] = useState(null);
