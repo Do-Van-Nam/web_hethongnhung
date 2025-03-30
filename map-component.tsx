@@ -15,6 +15,7 @@ interface MapComponentProps {
       turbidity: number
       oxygen: number
       conductivity: number
+      solids: number
     }
   }
 }
@@ -92,17 +93,12 @@ export default function MapComponent({ locationData }: MapComponentProps) {
             ${locationData.coordinates[0].toFixed(6)}, ${locationData.coordinates[1].toFixed(6)}
           </p>
           <div class="space-y-2 mt-3">
-            <div class="flex items-center gap-2">
-              <span class="text-sm">pH: <span class="font-medium">${locationData.measurements.pH}</span></span>
-            </div>
-            <div class="flex items-center gap-2">
-              <span class="text-sm">Temperature: <span class="font-medium">${locationData.measurements.temperature}°C</span></span>
-            </div>
+            
             <div class="flex items-center gap-2">
               <span class="text-sm">Turbidity: <span class="font-medium">${locationData.measurements.turbidity} NTU</span></span>
             </div>
             <div class="flex items-center gap-2">
-              <span class="text-sm">Dissolved Oxygen: <span class="font-medium">${locationData.measurements.oxygen} mg/L</span></span>
+              <span class="text-sm">Dissolved Solids: <span class="font-medium">${locationData.measurements.solids} ppm</span></span>
             </div>
           </div>
         `
@@ -157,3 +153,10 @@ export default function MapComponent({ locationData }: MapComponentProps) {
   )
 }
 
+
+{/* <div class="flex items-center gap-2">
+              <span class="text-sm">pH: <span class="font-medium">${locationData.measurements.pH}</span></span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-sm">Temperature: <span class="font-medium">${locationData.measurements.temperature}°C</span></span>
+            </div> */}

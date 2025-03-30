@@ -183,7 +183,7 @@ export default function WaterQualityDashboard() {
           </TabsContent>
 
           <TabsContent value="map" className="space-y-4">
-            <WaterQualityMap />
+            <WaterQualityMap sensorData={sensorData}/>
           </TabsContent>
 
           <TabsContent value="history" className="space-y-4">

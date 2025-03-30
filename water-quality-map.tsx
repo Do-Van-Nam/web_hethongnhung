@@ -4,20 +4,36 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import dynamic from "next/dynamic"
 
 // Sample water quality data for the location
-const locationData = {
-  id: "loc1",
-  name: "Monitoring Station Alpha",
-  coordinates: [20.980598122367738, 105.78790231932794] as [number, number],
-  quality: "Normal",
-  measurements: {
-    pH: 7.2,
-    temperature: 24.5,
-    turbidity: 1.2,
-    oxygen: 8.5,
-    conductivity: 420,
-  },
+// const locationData = {
+//   id: "loc1",
+//   name: "Monitoring Station Alpha",
+//   coordinates: [20.980598122367738, 105.78790231932794] as [number, number],
+//   quality: "Normal",
+//   measurements: {
+//     pH: 7.2,
+//     temperature: 24.5,
+//     turbidity: 1.2,
+//     oxygen: 8.5,
+//     conductivity: 420,
+//     solids: 0.5,
+//   },
+// }
+interface SensorData {
+  // id: string;
+  // name: string;
+  // latitude: number;
+  // longitude: number;
+  // quality: string;
+  // measurements: {
+  //   pH: number;
+  //   temperature: number;
+  //   turbidity: number;
+  //   oxygen: number;
+  //   conductivity: number;
+  // };
+  NTU:number;
+  TDS:number;
 }
-
 // Dynamically import the Map component to avoid SSR issues with Leaflet
 const MapComponent = dynamic(() => import("./map-component"), {
   ssr: false,
@@ -28,7 +44,22 @@ const MapComponent = dynamic(() => import("./map-component"), {
   ),
 })
 
-export function WaterQualityMap() {
+export function WaterQualityMap({ sensorData }: { sensorData: SensorData | null }){
+  // Cập nhật locationData từ sensorData nếu có dữ liệu
+  const locationData = {
+    id: "loc1",
+    name: "Monitoring Station Alpha",
+    coordinates: [20.980598122367738, 105.78790231932794] as [number, number],
+    quality: "Normal",
+    measurements: {
+      pH: 7.2,
+      temperature: 24.5,
+      turbidity: sensorData ? sensorData.NTU : 0, // Gán NTU từ sensorData
+      oxygen: 8.5,
+      conductivity:  sensorData ? sensorData.TDS : 420, 
+      solids:  sensorData ? sensorData.TDS : 0,
+    },
+  };
   return (
     <Card>
       <CardHeader>
