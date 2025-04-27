@@ -3,8 +3,8 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'water quality system',
-  description: 'Created with v0',
-  generator: 'v0.dev',
+  description: 'Created by IOT team 15',
+  generator: 'IOT team 15',
 }
 
 export default function RootLayout({

@@ -3,81 +3,61 @@
 import { useEffect, useState } from "react"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
 
-// Sample data - in a real application, this would come from your API
-const generateData = (hours = 24, historical = false) => {
-  const data = []
-  const now = new Date()
-  const startTime = historical
-    ? new Date(now.getTime() - hours * 60 * 60 * 1000)
-    : new Date(now.getTime() - 8 * 60 * 60 * 1000)
-
-  for (let i = 0; i < (historical ? hours : 8); i++) {
-    const time = new Date(startTime.getTime() + i * 60 * 60 * 1000)
-
-    // Create some realistic variations in the data
-    const baseTemp = 24
-    const basePh = 7.2
-    const baseTurbidity = 1.5
-    const baseOxygen = 8.0
-
-    // Add some randomness and trends
-    const hourFactor = (i % 24) / 24
-    const randomFactor = Math.random() * 0.4 - 0.2
-
-    data.push({
-      time: time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      fullTime: historical
-        ? time.toLocaleDateString() + " " + time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-        : null,
-      temperature: +(baseTemp + Math.sin(hourFactor * Math.PI * 2) * 1.5 + randomFactor).toFixed(1),
-      pH: +(basePh + Math.sin(hourFactor * Math.PI * 2) * 0.3 + randomFactor * 0.2).toFixed(1),
-      turbidity: +(baseTurbidity + Math.cos(hourFactor * Math.PI * 2) * 0.5 + randomFactor * 0.3).toFixed(1),
-      oxygen: +(baseOxygen + Math.sin(hourFactor * Math.PI * 2) * 0.8 + randomFactor * 0.4).toFixed(1),
-    })
-  }
-
-  return data
-}
-
 export function WaterQualityChart({ historical = false }) {
   const [data, setData] = useState([])
 
   useEffect(() => {
-    setData(generateData(historical ? 168 : 24, historical))
+    // Initial data fetch
+    fetchLatestData()
 
-    // In a real application, you would fetch data from your API here
-    if (!historical) {
-      const interval = setInterval(() => {
-        setData((prev) => {
-          const newData = [...prev]
-          // Remove oldest data point and add a new one
-          newData.shift()
-
-          const lastTime = new Date()
-          const baseTemp = 24
-          const basePh = 7.2
-          const baseTurbidity = 1.5
-          const baseOxygen = 8.0
-
-          const hourFactor = (lastTime.getHours() % 24) / 24
-          const randomFactor = Math.random() * 0.4 - 0.2
-
-          newData.push({
-            time: lastTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-            temperature: +(baseTemp + Math.sin(hourFactor * Math.PI * 2) * 1.5 + randomFactor).toFixed(1),
-            pH: +(basePh + Math.sin(hourFactor * Math.PI * 2) * 0.3 + randomFactor * 0.2).toFixed(1),
-            turbidity: +(baseTurbidity + Math.cos(hourFactor * Math.PI * 2) * 0.5 + randomFactor * 0.3).toFixed(1),
-            oxygen: +(baseOxygen + Math.sin(hourFactor * Math.PI * 2) * 0.8 + randomFactor * 0.4).toFixed(1),
-          })
-
-          return newData
-        })
-      }, 60000) // Update every minute
-
-      return () => clearInterval(interval)
-    }
+    // Set up interval for real-time updates
+    const interval = setInterval(() => {
+      fetchLatestData()
+    }, 5000) // Update every 5 seconds
+    return () => clearInterval(interval)
   }, [historical])
 
+  const fetchLatestData = async () => {
+    try {
+      const response = await fetch('https://api-iot-kappa.vercel.app/api/latest')
+      const latestData = await response.json()
+      
+      setData(prevData => {
+        // Create a new array with the previous data
+        const newData = [...prevData]
+        
+        // Add the new data point
+        // Get the current time for timestamps
+        const now = new Date();
+        const timeString = now.toLocaleTimeString(); // Format: HH:MM:SS
+        const fullTimeString = now.toLocaleString(); // Format: MM/DD/YYYY, HH:MM:SS
+        newData.push({
+          time: timeString,
+          fullTime: fullTimeString,
+          turbidity: latestData.NTU,
+          tds: latestData.TDS,
+          position: latestData.position,
+          status: latestData.status,
+          x: latestData.x,
+          y: latestData.y
+        })
+        
+        // Keep only the last 8 data points for real-time view
+        if (!historical && newData.length > 8) {
+          return newData.slice(-8)
+        }
+        
+        // Keep last 24 hours for historical view
+        if (historical && newData.length > 168) { // 24 * 7 = 168 for a week
+          return newData.slice(-168)
+        }
+        
+        return newData
+      })
+    } catch (error) {
+      console.error("Error fetching water quality data:", error)
+    }
+  }
   return (
     <div className="w-full h-[300px]">
       <ResponsiveContainer width="100%" height="100%">
@@ -103,27 +83,20 @@ export function WaterQualityChart({ historical = false }) {
           <Line
             yAxisId="left"
             type="monotone"
-            dataKey="temperature"
-            stroke="#f97316"
-            name="Temperature (°C)"
-            dot={false}
-            activeDot={{ r: 8 }}
-          />
-          <Line yAxisId="left" type="monotone" dataKey="pH" stroke="#0ea5e9" name="pH" dot={false} />
-          <Line
-            yAxisId="right"
-            type="monotone"
             dataKey="turbidity"
             stroke="#eab308"
             name="Turbidity (NTU)"
             dot={false}
+            activeDot={{ r: 8 }}
           />
           <Line
             yAxisId="right"
             type="monotone"
-            dataKey="oxygen"
+            dataKey="tds"
             stroke="#10b981"
-            name="Dissolved Oxygen (mg/L)"
+            name="Total Dissolved Solids (TDS)"
+            activeDot={{ r: 8 }}
+
             dot={false}
           />
         </LineChart>
@@ -131,4 +104,3 @@ export function WaterQualityChart({ historical = false }) {
     </div>
   )
 }
-

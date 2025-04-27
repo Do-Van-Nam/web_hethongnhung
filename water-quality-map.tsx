@@ -31,6 +31,9 @@ interface SensorData {
   //   oxygen: number;
   //   conductivity: number;
   // };
+  position: string;
+  x:number;
+  y:number;
   NTU:number;
   TDS:number;
 }
@@ -48,8 +51,8 @@ export function WaterQualityMap({ sensorData }: { sensorData: SensorData | null 
   // Cập nhật locationData từ sensorData nếu có dữ liệu
   const locationData = {
     id: "loc1",
-    name: "Monitoring Station Alpha",
-    coordinates: [20.980598122367738, 105.78790231932794] as [number, number],
+    name: sensorData ? sensorData.position : "Monitoring Station Alpha",
+    coordinates: [sensorData ? sensorData.x : 20.980598122367738, sensorData ? sensorData.y : 105.78790231932794] as [number, number],
     quality: "Normal",
     measurements: {
       pH: 7.2,

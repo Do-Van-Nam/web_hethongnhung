@@ -21,19 +21,50 @@ const SOCKET_SERVER_URL = "https://api-iot-kappa.vercel.app"; // Thay bằng URL
 export default function WaterQualityDashboard() {
   const [sensorData, setSensorData] = useState(null);
   
-    useEffect(() => {
-      const socket = io(SOCKET_SERVER_URL);
+  useEffect(() => {
+    // Function to fetch sensor data from API
+    const fetchSensorData = async () => {
+      try {
+        const response = await fetch('https://api-iot-kappa.vercel.app/api/latest');
+        const data = await response.json();
+        console.log("Data fetched from API:", data);
+        
+        // Only update state if the new data is different from current data
+        if (!sensorData || 
+            JSON.stringify(data) !== JSON.stringify(sensorData)) {
+          console.log("Updating sensor data with new values");
+          setSensorData(data);
+        } else {
+          console.log("No changes in sensor data");
+        }
+      } catch (error) {
+        console.error("Error fetching sensor data:", error);
+      }
+    };
+
+    // Fetch data immediately when component mounts
+    fetchSensorData();
+    
+    // Set up interval to fetch data every 5 seconds
+    const intervalId = setInterval(fetchSensorData, 5000);
+    
+    // Clean up interval when component unmounts
+    return () => clearInterval(intervalId);
+  }, [sensorData]);
   
-      // Lắng nghe sự kiện 'sensorData' từ backend
-      socket.on("sensorData", (data) => {
-        console.log("Dữ liệu nhận từ WebSocket:", data);
-        setSensorData(data);
-      });
+    // useEffect(() => {
+    //   const socket = io(SOCKET_SERVER_URL);
   
-      // return () => {
-      //   socket.disconnect(); // Ngắt kết nối khi component unmount
-      // };
-    }, []);
+    //   // Lắng nghe sự kiện 'sensorData' từ backend
+    //   socket.on("sensorData", (data) => {
+    //     console.log("Dữ liệu nhận từ WebSocket:", data);
+    //     setSensorData(data);
+    //   });
+  
+    //   // return () => {
+    //   //   socket.disconnect(); // Ngắt kết nối khi component unmount
+    //   // };
+    // }, []);
 
 
 
@@ -50,10 +81,10 @@ export default function WaterQualityDashboard() {
           <Badge variant="outline" className="hidden md:inline-flex">
             System: Online
           </Badge>
-          <Button variant="outline" size="icon" className="rounded-full">
+          {/* <Button variant="outline" size="icon" className="rounded-full">
             <Settings className="h-4 w-4" />
             <span className="sr-only">Settings</span>
-          </Button>
+          </Button> */}
         </div>
       </header>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -69,16 +100,20 @@ export default function WaterQualityDashboard() {
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {/* Trạng thái chất lượng nước */}
-          <Card className="border border-green-500 bg-green-100">
+          <Card className={`border ${sensorData?.status === "bad" ? "border-red-500 bg-red-100" : "border-green-500 bg-green-100"}`}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-green-700">
+              <CardTitle className={`text-sm font-medium ${sensorData?.status === "bad" ? "text-red-700" : "text-green-700"}`}>
                 Water Quality Status
               </CardTitle>
-              <Droplets className="h-6 w-6 text-green-700" />
+              <Droplets className={`h-6 w-6 ${sensorData?.status === "bad" ? "text-red-700" : "text-green-700"}`} />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-700">Normal</div>
-              <p className="text-xs text-green-600">All parameters are within the optimal range</p>
+              <div className={`text-2xl font-bold ${sensorData?.status === "bad" ? "text-red-700" : "text-green-700"}`}>{sensorData?.status ?? "..."}</div>
+              <p className={`text-xs ${sensorData?.status === "bad" ? "text-red-600" : "text-green-600"}`}>
+                {sensorData?.status === "bad" 
+                  ? "Some parameters are outside the optimal range" 
+                  : "All parameters are within the optimal range"}
+              </p>
             </CardContent>
           </Card>
           {/* <Card>
@@ -121,7 +156,7 @@ export default function WaterQualityDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{sensorData?.TDS ?? "..."} ppm</div>
-              <p className="text-xs text-muted-foreground">Optimal range: 6.5-8 ppm</p>
+              <p className="text-xs text-muted-foreground">Optimal range: 0-300 ppm</p>
               <Progress value={85} className="mt-2" />
             </CardContent>
           </Card>
@@ -132,18 +167,18 @@ export default function WaterQualityDashboard() {
             <TabsList>
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="map">Map</TabsTrigger>
-              <TabsTrigger value="history">History</TabsTrigger>
-              <TabsTrigger value="alerts">Alerts</TabsTrigger>
-              <TabsTrigger value="settings">Settings</TabsTrigger>
+              {/* <TabsTrigger value="history">History</TabsTrigger> */}
+              {/* <TabsTrigger value="alerts">Alerts</TabsTrigger>
+              <TabsTrigger value="settings">Settings</TabsTrigger> */}
             </TabsList>
             <div className="ml-auto flex items-center gap-2">
-              <Button variant="outline" size="sm" className="h-8 gap-1">
+              {/* <Button variant="outline" size="sm" className="h-8 gap-1">
                 <Filter className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">Filter</span>
-              </Button>
+              </Button> */}
               <Button variant="outline" size="sm" className="h-8 gap-1">
                 <Clock className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Last updated: 2 mins ago</span>
+                <span className="hidden sm:inline">Last updated: 5 seconds ago</span>
               </Button>
             </div>
           </div>
@@ -152,7 +187,7 @@ export default function WaterQualityDashboard() {
 
           <TabsContent value="overview" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-              <Card className="lg:col-span-5">
+              <Card className="lg:col-span-7">
                 <CardHeader>
                   <CardTitle>Water Quality Metrics</CardTitle>
                   <CardDescription>Real-time monitoring of key water quality parameters</CardDescription>
@@ -161,7 +196,7 @@ export default function WaterQualityDashboard() {
                   <WaterQualityChart />
                 </CardContent>
               </Card>
-              <Card className="lg:col-span-2">
+              {/* <Card className="lg:col-span-2">
                 <CardHeader>
                   <CardTitle>System Status</CardTitle>
                   <CardDescription>Current system health and alerts</CardDescription>
@@ -169,7 +204,7 @@ export default function WaterQualityDashboard() {
                 <CardContent>
                   <SystemStatus />
                 </CardContent>
-              </Card>
+              </Card> */}
             </div>
             <Card>
               <CardHeader>
@@ -186,7 +221,7 @@ export default function WaterQualityDashboard() {
             <WaterQualityMap sensorData={sensorData}/>
           </TabsContent>
 
-          <TabsContent value="history" className="space-y-4">
+          {/* <TabsContent value="history" className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle>Historical Data</CardTitle>
@@ -198,8 +233,8 @@ export default function WaterQualityDashboard() {
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
-          <TabsContent value="alerts" className="space-y-4">
+          </TabsContent> */}
+          {/* <TabsContent value="alerts" className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle>System Alerts</CardTitle>
@@ -220,7 +255,7 @@ export default function WaterQualityDashboard() {
                 <SettingsPanel />
               </CardContent>
             </Card>
-          </TabsContent>
+          </TabsContent> */}
         </Tabs>
       </main>
     </div>
