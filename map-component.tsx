@@ -106,11 +106,31 @@ export default function MapComponent({ locationData }: MapComponentProps) {
         // Create custom tooltip content
         const tooltipContent = document.createElement("div")
         tooltipContent.className = "text-xs font-medium"
+        const qualityColors = {
+          bad: {
+            bg: "bg-red-50",
+            text: "text-red-700",
+            border: "border-red-200",
+          },
+          fair: {
+            bg: "bg-yellow-50",
+            text: "text-yellow-700",
+            border: "border-yellow-200",
+          },
+          good: {
+            bg: "bg-green-50",
+            text: "text-green-700",
+            border: "border-green-200",
+          },
+        }
+
+        const qualityStyles = qualityColors[locationData.quality] || qualityColors.fair // Default to 'fair' if quality is unknown
         tooltipContent.innerHTML = `
-          Quality: <span class="ml-1 px-1.5 py-0.5 rounded-sm bg-green-50 text-green-700 border border-green-200">
-            ${locationData.quality}
+          Quality: <span class="ml-1 px-1.5 py-0.5 rounded-sm ${qualityStyles.bg} ${qualityStyles.text} ${qualityStyles.border}">
+            ${locationData.quality.toLocaleUpperCase()}
           </span>
         `
+
         const markerIcon = window.L.icon({
             iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
             shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",

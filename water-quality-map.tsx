@@ -36,6 +36,7 @@ interface SensorData {
   y:number;
   NTU:number;
   TDS:number;
+  status: string;
 }
 // Dynamically import the Map component to avoid SSR issues with Leaflet
 const MapComponent = dynamic(() => import("./map-component"), {
@@ -53,7 +54,7 @@ export function WaterQualityMap({ sensorData }: { sensorData: SensorData | null 
     id: "loc1",
     name: sensorData ? sensorData.position : "Monitoring Station Alpha",
     coordinates: [sensorData ? sensorData.x : 20.980598122367738, sensorData ? sensorData.y : 105.78790231932794] as [number, number],
-    quality: "Normal",
+    quality:sensorData ? sensorData.status :  "Normal",
     measurements: {
       pH: 7.2,
       temperature: 24.5,

@@ -108,7 +108,7 @@ export default function WaterQualityDashboard() {
               <Droplets className={`h-6 w-6 ${sensorData?.status === "bad" ? "text-red-700" : "text-green-700"}`} />
             </CardHeader>
             <CardContent>
-              <div className={`text-2xl font-bold ${sensorData?.status === "bad" ? "text-red-700" : "text-green-700"}`}>{sensorData?.status ?? "..."}</div>
+              <div className={`text-2xl font-bold ${sensorData?.status === "bad" ? "text-red-700" : "text-green-700"}`}>{sensorData?.status?.toUpperCase() ?? "..."}</div>
               <p className={`text-xs ${sensorData?.status === "bad" ? "text-red-600" : "text-green-600"}`}>
                 {sensorData?.status === "bad" 
                   ? "Some parameters are outside the optimal range" 

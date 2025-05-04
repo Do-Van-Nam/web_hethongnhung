@@ -26,7 +26,7 @@ interface Measurement {
   NTU: number;
   TDS: number;
   // conductivity: number;
-  status: "fair" | "bad" | "alert";
+  status: "fair" | "bad" | "good";
 }
 export function WaterQualityTable() {
   const [data, setData] = useState<Measurement[]>([])
@@ -63,10 +63,10 @@ export function WaterQualityTable() {
             Fair
           </Badge>
         )
-      case "warning":
+      case "good":
         return (
-          <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
-            Warning
+          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+            Good
           </Badge>
         )
       case "bad":
