@@ -31,7 +31,7 @@ export function WaterQualityChart({ historical = false }) {
         const now = new Date();
         const timeString = now.toLocaleTimeString(); // Format: HH:MM:SS
         const fullTimeString = now.toLocaleString(); // Format: MM/DD/YYYY, HH:MM:SS
-        newData.push({
+        newData.unshift({
           time: timeString,
           fullTime: fullTimeString,
           turbidity: latestData.NTU,
@@ -42,14 +42,16 @@ export function WaterQualityChart({ historical = false }) {
           y: latestData.y
         })
         
+        // Sort the data so that the most recent entries come first
+        newData.sort((a, b) => new Date(b.fullTime) - new Date(a.fullTime))
         // Keep only the last 8 data points for real-time view
         if (!historical && newData.length > 8) {
-          return newData.slice(-8)
+          return newData.slice(0, 8)
         }
         
         // Keep last 24 hours for historical view
         if (historical && newData.length > 168) { // 24 * 7 = 168 for a week
-          return newData.slice(-168)
+          return newData.slice(0, 168)
         }
         
         return newData

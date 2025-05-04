@@ -43,8 +43,17 @@ export function WaterQualityTable() {
           throw new Error(`HTTP error! Status: ${response.status}`)
         }
         
-        const result = await response.json()
-        setData([...result].reverse())
+        const result = await response.json() 
+        const parseCustomDate = (timestamp) => {
+          const [time, date] = timestamp.split(" ")
+          const [hour, minute, second] = time.split(":").map(Number)
+          const [day, month, year] = date.split("/").map(Number)
+          return new Date(year, month - 1, day, hour, minute, second)
+        }
+        
+        // Sort data by timestamp in descending order
+        const sortedData = result.sort((a, b) => parseCustomDate(b.timestamp) - parseCustomDate(a.timestamp))
+        setData(sortedData)
       } catch (err) {
         setError('Failed to fetch data. Please try again later.')
         console.error('Error fetching data:', err)
